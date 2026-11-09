@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca de Flashbacks Literarios</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --accent: #58a6ff;
+            --text: #c9d1d9;
+            --text-muted: #8b949e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #f0f6fc;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+
+        .book-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #30363d;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(88, 166, 255, 0.2);
+            border-color: var(--accent);
+        }
+
+        .book-cover-container {
+            width: 100%;
+            height: 350px;
+            overflow: hidden;
+            background: #21262d;
+            position: relative;
+        }
+
+        .book-cover-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .book-card:hover .book-cover-container img {
+            transform: scale(1.05);
+        }
+
+        .book-info {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .book-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 0.3rem;
+        }
+
+        .book-author {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #f0f6fc;
+        }
+
+        .flashback-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .flashback-header h2 {
+            font-size: 1.8rem;
+            color: #f0f6fc;
+            margin-bottom: 0.2rem;
+        }
+
+        .flashback-header p {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .flashback-body {
+            background: #0d1117;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #e6edf3;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Biblioteca Interactiva</h1>
+        <p>Seleccioná un libro para descubrir su atmósfera y flashback sin spoilers</p>
+    </header>
+
+    <div class="container" id="bookGrid"></div>
+
+    <div class="modal" id="flashbackModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModal">&times;</button>
+            <div class="flashback-container">
+                <div class="flashback-header">
+                    <h2 id="modalTitle">Título del Libro</h2>
+                    <p id="modalAuthor">Autor</p>
+                </div>
+                <div class="flashback-body" id="modalFlashback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const books = [
+            {
+                title: "Rebelión en la granja",
+                author: "George Orwell",
+                cover: "rebelion.jpg",
+                flashback: "Imaginen una noche silenciosa y tensa en los establos, donde los animales comienzan a cuestionar el yugo del hombre, sintiendo que un simple sueño de igualdad absoluta está a punto de desatar una tormenta ideológica incontrolable."
+            },
+            {
+                title: "La ciudad y los perros",
+                author: "Mario Vargas Llosa",
+                cover: "perros.jpg",
+                flashback: "El eco de botas marchando sobre el asfalto limeño y la tensión claustrofóbica de un colegio militar donde la lealtad, el miedo y la ley del más fuerte gobiernan cada rincón de los dormitorios oscuros."
+            },
+            {
+                title: "Boulevard",
+                author: "Flor M. Salvador",
+                cover: "boulevard.jpg",
+                flashback: "Luces de neón reflejadas sobre el asfalto mojado, una melodía melancólica sonando de fondo y la extraña sensación de que una historia de amor puede desafiar los límites del tiempo y las señales de advertencia."
+            },
+            {
+                title: "Lionel Messi: El Distinto",
+                author: "Olé – Marcelo Sottile",
+                cover: "messi.jpg",
+                flashback: "El olor a pasto recién cortado en una tarde calurosa de potrero, un balón pegado al pie izquierdo desafiando la física y la mirada fija en un sueño lejano que cambiaría la historia del fútbol mundial para siempre."
+            },
+            {
+                title: "El Principito",
+                author: "Antoine de Saint-Exupéry",
+                cover: "principito.jpg",
+                flashback: "Un avión varado en medio de la inmensidad silenciosa del desierto del Sahara, las estrellas titilando como susurros antiguos y la llegada inesperada de alguien que ve con el corazón lo que es invisible a los ojos."
+            },
+            {
+                title: "Las Gemelas de Auschwitz",
+                author: "Eva Mozes Kor – Lisa Rojany Buccieri",
+                cover: "auschwitz.jpg",
+                flashback: "Un frío penetrante bajo un cielo gris de invierno europeo, las vías del tren marcando un destino incierto y la resistencia inquebrantable del lazo entre dos hermanas frente a la sombra más oscura de la historia."
+            },
+            {
+                title: "Egresados",
+                author: "Santiago L. Speranza",
+                cover: "egresados.jpg",
+                flashback: "El aire puro de la montaña, risas de un viaje que prometía ser el cierre perfecto de una etapa y, de repente, un giro helado donde la camaradería juvenil empieza a convertirse en una lucha desesperada."
+            },
+            {
+                title: "Cadáver Exquisito",
+                author: "Agustina Bazterrica",
+                cover: "cadaver.jpg",
+                flashback: "Un mundo clínico, silencioso y perturbador donde la normalidad ha reescrito todas las reglas de la moral humana, obligando a mirar de frente una realidad tan fría como insostenible."
+            },
+            {
+                title: "La biblioteca de Media Noche",
+                author: "Matt Haig",
+                cover: "medianoche.jpg",
+                flashback: "Estanterías infinitas que se pierden en la penumbra, cada libro conteniendo la vida que pudiste haber vivido si hubieras tomado otra decisión en el cruce exacto del camino."
+            },
+            {
+                title: "Historia de David y Goliat",
+                author: "Samuel",
+                cover: "biblia.jpg",
+                flashback: "El viento soplando en el valle de Elah, la tensión absoluta de un ejército entero conteniendo la respiración y un joven pastor sosteniendo una honda frente a una mole impenetrable de bronce y poder."
+            }
+        ];
+
+        const grid = document.getElementById('bookGrid');
+        const modal = document.getElementById('flashbackModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalAuthor = document.getElementById('modalAuthor');
+        const modalFlashback = document.getElementById('modalFlashback');
+
+        function renderBooks() {
+            grid.innerHTML = '';
+            books.forEach((book) => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover-container">
+                        <img src="${book.cover}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/240x350?text=Sin+Imagen'">
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openFlashback(book));
+                grid.appendChild(card);
+            });
+        }
+
+        function openFlashback(book) {
+            modalTitle.textContent = book.title;
+            modalAuthor.textContent = book.author;
+            modalFlashback.textContent = book.flashback;
+            modal.classList.add('active');
+        }
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        renderBooks();
+    </script>
+</body>
+</html>
