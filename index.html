@@ -6,11 +6,14 @@
     <title>SPEED BOOKING</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --accent: #58a6ff;
-            --text: #c9d1d9;
-            --text-muted: #8b949e;
+            --bg-color: #090a16;
+            --card-bg: rgba(23, 18, 41, 0.7);
+            --accent-celeste: #70d6ff;
+            --accent-lila: #b5838d;
+            --accent-violeta: #9d4edd;
+            --text: #e0e1dd;
+            --text-muted: #a0aab2;
+            --aurora-glow: linear-gradient(135deg, #70d6ff, #c77dff, #7b2cbf);
         }
 
         * {
@@ -22,6 +25,11 @@
 
         body {
             background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 20% 15%, rgba(112, 214, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(157, 78, 221, 0.18) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(199, 125, 255, 0.08) 0%, transparent 60%);
+            background-attachment: fixed;
             color: var(--text);
             min-height: 100vh;
             padding: 2rem 1rem;
@@ -29,18 +37,24 @@
 
         header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 3.5rem;
         }
 
         header h1 {
-            font-size: 2.5rem;
-            color: #f0f6fc;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent-celeste), #e0aaff, #c77dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(157, 78, 221, 0.3);
+            letter-spacing: 1px;
         }
 
         header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
+            color: #b8c0ec;
+            font-size: 1.15rem;
+            font-weight: 300;
         }
 
         .container {
@@ -48,33 +62,54 @@
             margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 2rem;
+            gap: 2.5rem;
             padding: 1rem;
         }
 
+        /*Tarjetas estilo libro 3D*/
         .book-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
-            border: 1px solid #30363d;
+            position: relative;
+            backdrop-filter: blur(12px);
         }
 
         .book-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(88, 166, 255, 0.2);
-            border-color: var(--accent);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(157, 78, 221, 0.4), 0 0 20px rgba(112, 214, 255, 0.3);
+            border-color: transparent;
+        }
+
+        .book-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 14px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(112, 214, 255, 0.6), rgba(157, 78, 221, 0.2), rgba(199, 125, 255, 0.6));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 0.4s ease;
+        }
+
+        .book-card:hover::before {
+            opacity: 1;
         }
 
         .book-cover-container {
             width: 100%;
             height: 350px;
             overflow: hidden;
-            background: #21262d;
+            background: #121026;
             position: relative;
         }
 
@@ -82,33 +117,38 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.5s ease;
+            transition: transform 0.6s ease, filter 0.4s ease;
         }
 
         .book-card:hover .book-cover-container img {
-            transform: scale(1.05);
+            transform: scale(1.08);
+            filter: brightness(1.1);
         }
 
         .book-info {
-            padding: 1rem;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
             justify-content: space-between;
+            background: linear-gradient(180deg, rgba(23, 18, 41, 0.5) 0%, rgba(13, 10, 26, 0.8) 100%);
         }
 
         .book-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #f0f6fc;
-            margin-bottom: 0.3rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
         }
 
         .book-author {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--accent-celeste);
+            font-weight: 500;
         }
 
+        /* Modal con Animación de Libro Abriéndose */
         .modal {
             display: none;
             position: fixed;
@@ -116,12 +156,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(5, 4, 12, 0.85);
+            backdrop-filter: blur(12px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
+            padding: 1.5rem;
+            perspective: 1500px;
         }
 
         .modal.active {
@@ -129,36 +170,69 @@
         }
 
         .modal-content {
-            background: #161b22;
-            border: 1px solid #30363d;
+            background: linear-gradient(135deg, #15102a 0%, #0d0a1a 100%);
+            border: 1px solid rgba(199, 125, 255, 0.3);
             border-radius: 16px;
             width: 100%;
-            max-width: 800px;
-            padding: 2rem;
+            max-width: 750px;
+            padding: 2.5rem;
             position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            animation: modalFadeIn 0.3s ease;
+            box-shadow: 
+                0 0 50px rgba(157, 78, 221, 0.3),
+                0 25px 50px rgba(0, 0, 0, 0.8),
+                inset 0 0 15px rgba(112, 214, 255, 0.1);
+            transform-origin: left center;
+            animation: bookOpen 0.7s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
+            overflow: hidden;
         }
 
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        /* Simulación de lomo de libro al abrir */
+        .modal-content::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(90deg, var(--accent-violeta), var(--accent-celeste));
+            box-shadow: 2px 0 10px rgba(112, 214, 255, 0.5);
+        }
+
+        @keyframes bookOpen {
+            0% {
+                opacity: 0;
+                transform: rotateY(-85deg) scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: rotateY(0deg) scale(1);
+            }
         }
 
         .close-btn {
             position: absolute;
             top: 1rem;
             right: 1.5rem;
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
             color: var(--text-muted);
-            font-size: 1.8rem;
+            font-size: 1.5rem;
+            line-height: 1;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .close-btn:hover {
-            color: #f0f6fc;
+            color: #ffffff;
+            background: rgba(157, 78, 221, 0.4);
+            border-color: var(--accent-celeste);
+            transform: rotate(90deg);
         }
 
         .flashback-container {
@@ -168,28 +242,44 @@
         }
 
         .flashback-header h2 {
-            font-size: 1.8rem;
-            color: #f0f6fc;
-            margin-bottom: 0.2rem;
+            font-size: 2rem;
+            background: linear-gradient(90deg, #ffffff, #e0aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.3rem;
         }
 
         .flashback-header p {
-            color: var(--accent);
-            font-size: 1rem;
-            font-weight: 500;
+            color: var(--accent-celeste);
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .flashback-body {
-            background: #0d1117;
-            padding: 1.5rem;
-            border-radius: 10px;
-            border-left: 4px solid var(--accent);
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: #e6edf3;
-            min-height: 120px;
+            background: rgba(9, 7, 19, 0.7);
+            padding: 1.8rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-violeta);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #d8e2dc;
+            min-height: 130px;
             display: flex;
             align-items: center;
+            position: relative;
+        }
+
+        .flashback-body::before {
+            content: '“';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 4rem;
+            color: rgba(157, 78, 221, 0.15);
+            font-family: Georgia, serif;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -280,49 +370,4 @@
         ];
 
         const grid = document.getElementById('bookGrid');
-        const modal = document.getElementById('flashbackModal');
-        const closeModal = document.getElementById('closeModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalAuthor = document.getElementById('modalAuthor');
-        const modalFlashback = document.getElementById('modalFlashback');
-
-        function renderBooks() {
-            grid.innerHTML = '';
-            books.forEach((book) => {
-                const card = document.createElement('div');
-                card.className = 'book-card';
-                card.innerHTML = `
-                    <div class="book-cover-container">
-                        <img src="${book.cover}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/240x350?text=Sin+Imagen'">
-                    </div>
-                    <div class="book-info">
-                        <div class="book-title">${book.title}</div>
-                        <div class="book-author">${book.author}</div>
-                    </div>
-                `;
-                card.addEventListener('click', () => openFlashback(book));
-                grid.appendChild(card);
-            });
-        }
-
-        function openFlashback(book) {
-            modalTitle.textContent = book.title;
-            modalAuthor.textContent = book.author;
-            modalFlashback.textContent = book.flashback;
-            modal.classList.add('active');
-        }
-
-        closeModal.addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-
-        renderBooks();
-    </script>
-</body>
-</html>
+        const modal = document.
