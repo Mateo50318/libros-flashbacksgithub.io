@@ -370,4 +370,49 @@
         ];
 
         const grid = document.getElementById('bookGrid');
-        const modal = document.
+        const modal = document.getElementById('flashbackModal');
+        const closeModal = document.getElementById('closeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalAuthor = document.getElementById('modalAuthor');
+        const modalFlashback = document.getElementById('modalFlashback');
+
+        function renderBooks() {
+            grid.innerHTML = '';
+            books.forEach((book) => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+                card.innerHTML = `
+                    <div class="book-cover-container">
+                        <img src="${book.cover}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/240x350?text=Sin+Imagen'">
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openFlashback(book));
+                grid.appendChild(card);
+            });
+        }
+
+        function openFlashback(book) {
+            modalTitle.textContent = book.title;
+            modalAuthor.textContent = book.author;
+            modalFlashback.textContent = book.flashback;
+            modal.classList.add('active');
+        }
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        renderBooks();
+    </script>
+</body>
+</html>
